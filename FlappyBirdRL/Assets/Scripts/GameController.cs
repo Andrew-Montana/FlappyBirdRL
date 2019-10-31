@@ -6,7 +6,7 @@ public class GameController : MonoBehaviour
 {
     public static GameController instance;
     public GameObject gameOverTMP;
-    private bool gameOver;
+    public bool gameOver;
 
     private void Awake()
     {
