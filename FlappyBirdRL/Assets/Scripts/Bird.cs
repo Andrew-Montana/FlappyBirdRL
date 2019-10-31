@@ -40,5 +40,6 @@ public class Bird : MonoBehaviour
     {
         isDead = true;
         animator.SetInteger("State", 2);
+        GameController.instance.GameOver();
     }
 }
