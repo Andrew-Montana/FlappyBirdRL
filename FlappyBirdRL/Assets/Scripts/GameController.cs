@@ -1,12 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
     public static GameController instance;
-    public GameObject gameOverTMP;
     public bool gameOver;
+    private int score;
+
+    public GameObject gameOverTMP;
+    public TextMeshProUGUI tmp;
 
     private void Awake()
     {
@@ -33,6 +37,15 @@ public class GameController : MonoBehaviour
             {
                 UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
             }
+        }
+    }
+
+    public void GetScore()
+    {
+        if (!gameOver)
+        {
+            score++;
+            tmp.text = "Score: " + score.ToString();
         }
     }
 
