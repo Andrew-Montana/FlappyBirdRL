@@ -45,7 +45,7 @@ public class GameController : MonoBehaviour
         if (!gameOver)
         {
             score++;
-            tmp.text = "Score: " + score.ToString();
+            tmp.text = "" + score.ToString();
         }
     }
 

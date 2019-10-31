@@ -12,8 +12,10 @@ public class Bird : MonoBehaviour
     private Animator animator;
 
     private AudioClip audioClip;
+    private AudioClip smashClip;
     private AudioSource audioSource;
     private bool first = false;
+    private bool isSmashed = false;
 
 
     // Start is called before the first frame update
@@ -26,6 +28,7 @@ public class Bird : MonoBehaviour
         isDead = false;
         force = 240;
         audioClip = Resources.Load("Sounds/birdflap2") as AudioClip;
+        smashClip = Resources.Load("Sounds/smash") as AudioClip;
         audioSource.clip = audioClip;
     }
 
@@ -57,9 +60,20 @@ public class Bird : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        rb.velocity = Vector2.zero;
-        isDead = true;
-        animator.SetInteger("State", 2);
-        GameController.instance.GameOver();
+        if(isDead == false)
+        {
+            rb.velocity = Vector2.zero;
+            isDead = true;
+            animator.SetInteger("State", 2);
+            GameController.instance.GameOver();
+        }
+        if(collision.gameObject.tag == "Ground")
+        {
+            if(isSmashed == false)
+            {
+                audioSource.PlayOneShot(smashClip, 0.2f);
+                isSmashed = true;
+            }
+        }
     }
 }
