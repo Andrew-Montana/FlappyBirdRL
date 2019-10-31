@@ -6,18 +6,27 @@ public class Bird : MonoBehaviour
 {
     private float force;
     private bool isDead;
+    private float counter = 0;
 
     private Rigidbody2D rb;
     private Animator animator;
+
+    private AudioClip audioClip;
+    private AudioSource audioSource;
+    private bool first = false;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         isDead = false;
-        force = 200f;
+        force = 240;
+        audioClip = Resources.Load("Sounds/birdflap2") as AudioClip;
+        audioSource.clip = audioClip;
     }
 
     // Update is called once per frame
@@ -25,14 +34,24 @@ public class Bird : MonoBehaviour
     {
         if(!isDead)
         {
-            animator.SetInteger("State", 0);
-
-            if (Input.GetMouseButton(0))
+            if(counter == 0)
             {
-                rb.velocity = Vector2.zero;
-                rb.AddForce(new Vector2(0, force));
-                animator.SetInteger("State", 1);
+                animator.SetInteger("State", 0);
+
+                if (Input.GetMouseButton(0))
+                {
+                    audioSource.PlayOneShot(audioClip, 0.2f);
+                    rb.velocity = Vector2.zero;
+                    rb.AddForce(new Vector2(0, force));
+                    animator.SetInteger("State", 1);
+                    counter = 1 ;
+                }
             }
+            if (counter > 0)
+                counter += Time.deltaTime;
+
+            if (counter >= 1.5f)
+                counter = 0;
         }
     }
 

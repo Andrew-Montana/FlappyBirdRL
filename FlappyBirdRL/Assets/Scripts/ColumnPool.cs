@@ -12,7 +12,7 @@ public class ColumnPool : MonoBehaviour
     public float spawnRate = 4f;
     public float colMin = -1f;
     public float colMax = 3.5f;
-    private float spawnXPos = 5f;
+    private float spawnXPos = 10f;
     private int currentCol = 0;
     // Start is called before the first frame update
     void Start()

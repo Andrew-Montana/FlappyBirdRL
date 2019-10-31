@@ -5,7 +5,7 @@ using UnityEngine;
 public class Columns : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private float scrollSpeed = -5.5f;
+    private float scrollSpeed = -2.5f;
 
     private void Start()
     {
