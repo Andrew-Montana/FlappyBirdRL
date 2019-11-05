@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class Bird : MonoBehaviour
 {
+    public double horizontalDistance = 100;
+    public double verticalDistance = 100;
+
     private float force;
-    private bool isDead;
+    public bool isDead;
     private float counter = 0;
 
     private Rigidbody2D rb;
@@ -32,16 +35,26 @@ public class Bird : MonoBehaviour
         audioSource.clip = audioClip;
     }
 
+
+
     // Update is called once per frame
     void Update()
     {
-        if(!isDead)
+        //   Vector2 forward = //transform.TransformDirection(Vector2.right) * 6;
+        // Debug.DrawLine(transform.position, transf, Color.red, 0.5f, false);
+        Debug.DrawLine(new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), new Vector3(7,transform.position.y,0), Color.red, 0.5f, false);
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x+1, transform.position.y), new Vector3(7, transform.position.y, 0));
+        if (hit.collider != null)
+        {
+            Debug.Log("GO");
+        }
+            if (!isDead)
         {
             if(counter == 0)
             {
                 animator.SetInteger("State", 0);
 
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButton(0)) //(Bot.isJump)//(Input.GetMouseButton(0))
                 {
                     audioSource.PlayOneShot(audioClip, 0.2f);
                     rb.velocity = Vector2.zero;

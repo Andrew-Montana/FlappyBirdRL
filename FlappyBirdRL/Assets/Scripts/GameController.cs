@@ -33,10 +33,11 @@ public class GameController : MonoBehaviour
     {
         if(gameOver == true)
         {
-            if(Input.GetMouseButton(0))
-            {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
-            }
+            //  if(Input.GetMouseButton(0))
+            //  {
+            //      UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            //  }
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         }
     }
 
