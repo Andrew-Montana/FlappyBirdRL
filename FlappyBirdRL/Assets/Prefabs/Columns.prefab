@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7911471667970053437}
   - component: {fileID: 7911471667970053438}
   - component: {fileID: 7911471667970053439}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ColumnSprite (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 7911471667994460594}
   - component: {fileID: 7911471667994460595}
   - component: {fileID: 7911471667994460593}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ColumnSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 7911471668197476079}
   - component: {fileID: 7911471668197476077}
   - component: {fileID: 7911471668197476078}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Columns
   m_TagString: Untagged
   m_Icon: {fileID: 0}

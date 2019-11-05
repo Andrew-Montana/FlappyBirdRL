@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ColumnPool : MonoBehaviour
 {
+    static public float heightOfPipe;
+
     private GameObject[] columns;
     public int columnPoolSoze = 5;
     public GameObject columnPrefab;
@@ -17,6 +19,7 @@ public class ColumnPool : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        heightOfPipe = columnPrefab.transform.GetChild(0).gameObject.GetComponent<SpriteRenderer>().size.y;
         columns = new GameObject[columnPoolSoze];
         for (int i = 0; i < columnPoolSoze; i++)
         {

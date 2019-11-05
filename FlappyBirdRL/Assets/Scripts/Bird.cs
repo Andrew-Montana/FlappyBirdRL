@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Bird : MonoBehaviour
 {
-    public double horizontalDistance = 100;
-    public double verticalDistance = 100;
+    public float horizontalDistance;
+    public float verticalDistance;
 
     private float force;
     public bool isDead;
@@ -42,11 +42,17 @@ public class Bird : MonoBehaviour
     {
         //   Vector2 forward = //transform.TransformDirection(Vector2.right) * 6;
         // Debug.DrawLine(transform.position, transf, Color.red, 0.5f, false);
-        Debug.DrawLine(new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), new Vector3(7,transform.position.y,0), Color.red, 0.5f, false);
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x+1, transform.position.y), new Vector3(7, transform.position.y, 0));
+        int layerMask = 1 << 8;
+       // Debug.DrawLine(new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), new Vector3(7,transform.position.y,0), Color.red, 0.5f, false);
+        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector3(7, transform.position.y, 0), 7, layerMask);
         if (hit.collider != null)
         {
-            Debug.Log("GO");
+            GameObject lowerPipe = hit.transform.GetChild(0).gameObject;
+            GameObject higherPipe = hit.transform.GetChild(1).gameObject;
+            horizontalDistance = Vector3.Distance(transform.position, hit.transform.position);
+            // Debug.Log(lowerPipe.transform.position.y);
+            Debug.DrawLine(new Vector3(hit.transform.position.x, lowerPipe.transform.position.y + (ColumnPool.heightOfPipe/2) ,0), new Vector3(hit.transform.position.x, 3, 0), Color.red, 0.5f, false);
+            Debug.DrawLine(transform.position, new Vector3(horizontalDistance,transform.position.y,0), Color.green, 0.5f, false);
         }
             if (!isDead)
         {
