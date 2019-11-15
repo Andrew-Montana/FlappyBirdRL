@@ -24,6 +24,7 @@ public class Columns : MonoBehaviour
         if(obj.tag == "Player")
         {
             GameController.instance.GetScore();
+            Bot.isPassed = true;
         }
     }
 }

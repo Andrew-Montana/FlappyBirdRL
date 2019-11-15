@@ -40,6 +40,7 @@ public class Bird : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (transform.position.y > 5) GameObject.Find("GameController").GetComponent<GameController>().GameOver();
         //   Vector2 forward = //transform.TransformDirection(Vector2.right) * 6;
         // Debug.DrawLine(transform.position, transf, Color.red, 0.5f, false);
         int layerMask = 1 << 8;
@@ -50,6 +51,8 @@ public class Bird : MonoBehaviour
             GameObject lowerPipe = hit.transform.GetChild(0).gameObject;
             GameObject higherPipe = hit.transform.GetChild(1).gameObject;
             horizontalDistance = Vector3.Distance(transform.position, hit.transform.position);
+            verticalDistance = lowerPipe.transform.position.y + (ColumnPool.heightOfPipe / 2) - transform.position.y;
+          //  Debug.Log(verticalDistance);
             // Debug.Log(lowerPipe.transform.position.y);
             Debug.DrawLine(new Vector3(hit.transform.position.x, lowerPipe.transform.position.y + (ColumnPool.heightOfPipe/2) ,0), new Vector3(hit.transform.position.x, 3, 0), Color.red, 0.5f, false);
             Debug.DrawLine(transform.position, new Vector3(horizontalDistance,transform.position.y,0), Color.green, 0.5f, false);
@@ -60,7 +63,7 @@ public class Bird : MonoBehaviour
             {
                 animator.SetInteger("State", 0);
 
-                if (Input.GetMouseButton(0)) //(Bot.isJump)//(Input.GetMouseButton(0))
+                if (Input.GetMouseButton(0))
                 {
                     audioSource.PlayOneShot(audioClip, 0.2f);
                     rb.velocity = Vector2.zero;
