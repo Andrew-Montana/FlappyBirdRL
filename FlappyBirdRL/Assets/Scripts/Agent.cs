@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-	public double learning_rate = 0.6;
-	public double discount_rate = 0.99;
+	public float learning_rate = 0.6f;
+	public float discount_rate = 0.99f;
 
-	public double exploration_rate = 0.3;
-	public double max_exploration_rate = 1;
-	public double min_exploration_rate = 0.01;
-	public double exploration_decay_rate = 0.01;
+	public float exploration_rate = 100.0f;
+    public float max_exploration_rate = 100.0f;
+	public float min_exploration_rate = 0.01f;
+	public float exploration_decay_rate = 0.0001f;
 
-    public double[,] qTable = new double[10000, 2];
+    public float[,] qTable = new float[10000, 2];
 
     public void InitQTable()
 	{
@@ -25,10 +25,10 @@ public class Agent : MonoBehaviour
 		}
 	}
 
-	public void UpdateQTable(int state, int newState, int action, double reward)
+	public void UpdateQTable(int state, int newState, int action, float reward)
 	{
-		double maxFutureQ = qTable[newState, 0] > qTable[newState, 1] ? qTable[newState, 0] : qTable[newState, 1];
-		double QValue = (1 - learning_rate) * (qTable[state, action]) + learning_rate * (reward + discount_rate * maxFutureQ );
+        float maxFutureQ = qTable[newState, 0] > qTable[newState, 1] ? qTable[newState, 0] : qTable[newState, 1];
+		float QValue = (1 - learning_rate) * (qTable[state, action]) + learning_rate * (reward + discount_rate * maxFutureQ );
 		qTable[state, action] = QValue;
 
 	}

@@ -20,12 +20,14 @@ public class Bird : MonoBehaviour
 
     public bool isTriggered = false;
 
-    private int action, state, newState; private double reward;
+    private int action, state, newState; private float reward;
     private double rewards_current_episode = 0;
 
     private int episode;
 
     public GameObject columnControllerPrefab;
+
+    private float timer = 0f;
 
 
     // Start is called before the first frame update
@@ -50,46 +52,55 @@ public class Bird : MonoBehaviour
         agent.InitQTable();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if (!isDead)
+        timer += Time.deltaTime;
+
+        if(timer >= 0.5f)
         {
-            animator.SetInteger("State", 0);
-            // 4 step, reward
-            if (timeStep > 0)
+            timer = 0.0f;
+            if (!isDead)
             {
-                if (isTriggered == false)
+                animator.SetInteger("State", 0);
+                // 4 step, reward
+                if (timeStep > 0)
                 {
-                    reward = 1.5;
+                    if (isTriggered == false)
+                    {
+                        reward = 0.1f;
+                    }
+                    else
+                    {
+                        reward = 20;
+                        isTriggered = false;
+                    }
+                    // 5 step. Update Q Table
+                    agent.UpdateQTable(state, newState, action, reward);
                 }
-                else
-                {
-                    reward = 20;
-                    isTriggered = false;
-                }
-                // 5 step. Update Q Table
-                agent.UpdateQTable(state, newState, action, reward);
+
+
+                // 2 step and 3 steps. perform action
+                //UserInput();
+                action = BotInput();
+                state = timeStep;
+                newState = ++timeStep;
             }
+            else
+            {
+                // 4 step. reward.
+                reward = -1;
+                // 5 Step. Update Q Table.
+                agent.UpdateQTable(state, newState, action, reward);
+                episode++;
+                ResetPos();
+            }
+            rewards_current_episode += reward;
+            agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
 
-
-            // 2 step and 3 steps. perform action
-            //UserInput();
-            action = BotInput();
-            state = timeStep;
-            newState = ++timeStep;
+            Debug.Log(action);
         }
-        else
-        {
-            // 4 step. reward.
-            reward = -999;
-            // 5 Step. Update Q Table.
-            agent.UpdateQTable(state, newState, action, reward);
-            agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
-            episode++;
-            ResetPos();
-        }
-        rewards_current_episode += reward;
     }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -120,47 +131,21 @@ public class Bird : MonoBehaviour
     public void Push()
     {
         rb.velocity = Vector2.zero;
-        rb.AddForce(new Vector2(0, force * Time.deltaTime), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(0, force));
         animator.SetInteger("State", 1);
     }
 
     public void ResetPos()
     {
-        System.IO.StreamWriter sr = new System.IO.StreamWriter(@"D:\table.txt");
-        for (int i = 0; i < 500; i++)
-        {
-            sr.WriteLine(i);
-            for (int j = 0; j < 2; j++)
-            {
-                sr.WriteLine("#" + agent.qTable[i, j]);
-            }
-        }
-        sr.Close();
         rb.velocity = Vector3.zero;
         transform.localPosition = startPos;
         isDead = false;
-        // pipes.ResetPos();
         timeStep = 0;
         reward = 0;
         state = 0;
         newState = 0;
         action = 0;
         rewards_current_episode = 0;
-        //
-        GameObject co = GameObject.Find("ColumnController");
-        if(co != null)
-            GameObject.Destroy(co);
-        GameObject clone = GameObject.Find("ColumnController(Clone)");
-        if(clone != null)
-            GameObject.Destroy(clone);
-        //
-        GameObject[] pipes;
-        pipes = GameObject.FindGameObjectsWithTag("pipe");
-        foreach (GameObject pipe in pipes)
-        {
-            Destroy(pipe);
-        }
-        //
-        Instantiate(columnControllerPrefab);
+        timer = 0f;
     }
 }

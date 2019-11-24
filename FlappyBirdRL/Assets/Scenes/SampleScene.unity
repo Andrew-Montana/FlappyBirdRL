@@ -1704,6 +1704,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ColumnController
       objectReference: {fileID: 0}
+    - target: {fileID: 1208716284372294612, guid: 14889b2672672f143a070ecde5b8d22d,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1208716284372294614, guid: 14889b2672672f143a070ecde5b8d22d,
         type: 3}
       propertyPath: m_LocalPosition.x
