@@ -5,17 +5,21 @@ using UnityEngine;
 public class Columns : MonoBehaviour
 {
     private Rigidbody2D rb;
+    private GameObject player;
+    private Bird bird;
     private float scrollSpeed = -2.5f;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        player = GameObject.Find("Bird");
+        bird = player.GetComponent<Bird>();
         rb.velocity = new Vector2(scrollSpeed, 0);
     }
 
     private void Update()
     {
-        if (GameController.instance.gameOver)
+        if (bird.isDead)
             rb.velocity = Vector2.zero;
     }
 
@@ -23,8 +27,8 @@ public class Columns : MonoBehaviour
     {
         if(obj.tag == "Player")
         {
-            GameController.instance.GetScore();
-            Bot.isPassed = true;
+            //  GameController.instance.GetScore();
+            bird.isTriggered = true;
         }
     }
 }

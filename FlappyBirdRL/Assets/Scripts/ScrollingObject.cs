@@ -8,10 +8,12 @@ public class ScrollingObject : MonoBehaviour
     private float scrollSpeed = -2.5f;
     private BoxCollider2D boxCol;
     private float offset;
+    private Bird bird;
 
     // Start is called before the first frame update
     void Start()
     {
+        bird = GameObject.Find("Bird").GetComponent<Bird>();
         boxCol = GetComponent<BoxCollider2D>();
         offset = boxCol.size.x * 2f;
         rb = GetComponent<Rigidbody2D>();
@@ -21,7 +23,7 @@ public class ScrollingObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameController.instance.gameOver)
+        if (bird.isDead)
             rb.velocity = Vector2.zero;
 
         if(transform.position.x < -boxCol.size.x)

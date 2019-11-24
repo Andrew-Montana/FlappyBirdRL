@@ -9,82 +9,86 @@ public interface ICheck
 
 public class Bird : MonoBehaviour
 {
-
-    public float horizontalDistance;
-    public float verticalDistance;
-
-    private float force;
-    public bool isDead;
-    private float counter = 0;
-
     private Rigidbody2D rb;
+    private Agent agent;
     private Animator animator;
+    private float force;
 
-    private AudioClip audioClip;
-    private AudioClip smashClip;
-    private AudioSource audioSource;
-    private bool first = false;
-    private bool isSmashed = false;
+    private Vector3 startPos;
+    private int timeStep;
+    public bool isDead;
+
+    public bool isTriggered = false;
+
+    private int action, state, newState; private double reward;
+    private double rewards_current_episode = 0;
+
+    private int episode;
+
+    public GameObject columnControllerPrefab;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         isDead = false;
-        force = 5;
-        audioClip = Resources.Load("Sounds/birdflap2") as AudioClip;
-        smashClip = Resources.Load("Sounds/smash") as AudioClip;
-        audioSource.clip = audioClip;
+        force = 200;
+        newState = 0;
+        state = 0;
+        action = 0;
+
+        agent = GetComponent<Agent>();
+        timeStep = 0;
+        isDead = false;
+        startPos = transform.localPosition;
+        reward = 0;
+        episode = 1;
+
+        // 1 step
+        agent.InitQTable();
     }
 
-
-
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (transform.position.y > 5) GameObject.Find("GameController").GetComponent<GameController>().GameOver();
-        //   Vector2 forward = //transform.TransformDirection(Vector2.right) * 6;
-        // Debug.DrawLine(transform.position, transf, Color.red, 0.5f, false);
-        int layerMask = 1 << 8;
-       // Debug.DrawLine(new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), new Vector3(7,transform.position.y,0), Color.red, 0.5f, false);
-        RaycastHit2D hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector3(7, transform.position.y, 0), 7, layerMask);
-        if (hit.collider != null)
+        if (!isDead)
         {
-            GameObject lowerPipe = hit.transform.GetChild(0).gameObject;
-            GameObject higherPipe = hit.transform.GetChild(1).gameObject;
-            horizontalDistance = Vector3.Distance(transform.position, hit.transform.position);
-            verticalDistance = lowerPipe.transform.position.y + (ColumnPool.heightOfPipe / 2) - transform.position.y;
-          //  Debug.Log(verticalDistance);
-            // Debug.Log(lowerPipe.transform.position.y);
-            Debug.DrawLine(new Vector3(hit.transform.position.x, lowerPipe.transform.position.y + (ColumnPool.heightOfPipe/2) ,0), new Vector3(hit.transform.position.x, 3, 0), Color.red, 0.5f, false);
-            Debug.DrawLine(transform.position, new Vector3(horizontalDistance,transform.position.y,0), Color.green, 0.5f, false);
-        }
-            if (!isDead)
-        {
-          //  if(counter == 0)
-         //   {
-                animator.SetInteger("State", 0);
-
-                if (Input.GetMouseButton(0))
+            animator.SetInteger("State", 0);
+            // 4 step, reward
+            if (timeStep > 0)
+            {
+                if (isTriggered == false)
                 {
-                    audioSource.PlayOneShot(audioClip, 0.2f);
-                    rb.velocity = Vector2.zero;
-                  //   rb.AddForce(Vector2.up, ForceMode2D.Impulse);
-                    rb.AddForce(new Vector2(0, force * Time.deltaTime), ForceMode2D.Impulse);
-                    animator.SetInteger("State", 1);
-           //         counter = 1 ;
+                    reward = 1.5;
                 }
-         //   }
-          //  if (counter > 0)
-          //      counter += Time.deltaTime;
+                else
+                {
+                    reward = 20;
+                    isTriggered = false;
+                }
+                // 5 step. Update Q Table
+                agent.UpdateQTable(state, newState, action, reward);
+            }
 
-        //    if (counter >= 1.5f)
-         //       counter = 0;
+
+            // 2 step and 3 steps. perform action
+            //UserInput();
+            action = BotInput();
+            state = timeStep;
+            newState = ++timeStep;
         }
+        else
+        {
+            // 4 step. reward.
+            reward = -999;
+            // 5 Step. Update Q Table.
+            agent.UpdateQTable(state, newState, action, reward);
+            agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
+            episode++;
+            ResetPos();
+        }
+        rewards_current_episode += reward;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -94,15 +98,69 @@ public class Bird : MonoBehaviour
             rb.velocity = Vector2.zero;
             isDead = true;
             animator.SetInteger("State", 2);
-            GameController.instance.GameOver();
         }
-        if(collision.gameObject.tag == "Ground")
+    }
+
+    public void UserInput()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            if(isSmashed == false)
+            Push();
+        }
+    }
+
+    public int BotInput()
+    {
+        int action = agent.GetAction(timeStep);
+        if (action == 1) Push();
+
+        return action;
+    }
+
+    public void Push()
+    {
+        rb.velocity = Vector2.zero;
+        rb.AddForce(new Vector2(0, force * Time.deltaTime), ForceMode2D.Impulse);
+        animator.SetInteger("State", 1);
+    }
+
+    public void ResetPos()
+    {
+        System.IO.StreamWriter sr = new System.IO.StreamWriter(@"D:\table.txt");
+        for (int i = 0; i < 500; i++)
+        {
+            sr.WriteLine(i);
+            for (int j = 0; j < 2; j++)
             {
-                audioSource.PlayOneShot(smashClip, 0.2f);
-                isSmashed = true;
+                sr.WriteLine("#" + agent.qTable[i, j]);
             }
         }
+        sr.Close();
+        rb.velocity = Vector3.zero;
+        transform.localPosition = startPos;
+        isDead = false;
+        // pipes.ResetPos();
+        timeStep = 0;
+        reward = 0;
+        state = 0;
+        newState = 0;
+        action = 0;
+        rewards_current_episode = 0;
+        //
+        GameObject co = GameObject.Find("ColumnController");
+        if(co != null)
+            GameObject.Destroy(co);
+        GameObject clone = GameObject.Find("ColumnController(Clone)");
+        if(clone != null)
+            GameObject.Destroy(clone);
+        //
+        GameObject[] pipes;
+        pipes = GameObject.FindGameObjectsWithTag("pipe");
+        foreach (GameObject pipe in pipes)
+        {
+            Destroy(pipe);
+        }
+        //
+        Instantiate(columnControllerPrefab);
     }
 }

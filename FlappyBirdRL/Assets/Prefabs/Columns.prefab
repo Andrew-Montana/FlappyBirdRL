@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 7911471668197476078}
   m_Layer: 8
   m_Name: Columns
-  m_TagString: Untagged
+  m_TagString: pipe
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
