@@ -8,9 +8,11 @@ public class Columns : MonoBehaviour
     private GameObject player;
     private Bird bird;
     private float scrollSpeed = -2.5f;
+    private Vector3 localPos;
 
     private void Start()
     {
+        localPos = transform.localPosition;
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.Find("Bird");
         bird = player.GetComponent<Bird>();
@@ -20,7 +22,7 @@ public class Columns : MonoBehaviour
     private void Update()
     {
         if (bird.isDead)
-            rb.velocity = Vector2.zero;
+            transform.localPosition = localPos;
     }
 
     private void OnTriggerEnter2D(Collider2D obj)
