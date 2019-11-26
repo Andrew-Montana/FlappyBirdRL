@@ -39,7 +39,7 @@ public class Bird : MonoBehaviour
     float tempLastMaxREpisode = 0;
 
     // time delta delay
-    private float delayTime = 0.5f;
+    private float delayTime = 0.4f;
 
 
     // Start is called before the first frame update
@@ -82,11 +82,11 @@ public class Bird : MonoBehaviour
                 {
                     if (isTriggered == false)
                     {
-                        reward = 0.1f;
+                        reward = 1f; // was 0.1f
                     }
                     else
                     {
-                        reward = 20;
+                        reward = 200; // was 20
                         isTriggered = false;
                         score.text = (++myScore).ToString();
                     }
@@ -104,7 +104,7 @@ public class Bird : MonoBehaviour
             else
             {
                 // 4 step. reward.
-                reward = -1;
+                reward = -1000; // was -1
                 // 5 Step. Update Q Table.
                 agent.UpdateQTable(state, newState, action, reward);
                 episode++;
