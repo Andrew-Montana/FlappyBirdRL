@@ -62,6 +62,15 @@ public class Agent : MonoBehaviour
 
 	}
 
+    public void UpdateQTable_SARSA(int state, int newState, int action, int nextAction, float reward)
+    {
+        float predict = qTable[state, action];
+        float target = reward + discount_rate * qTable[state2, action2];
+        qTable[state, action] = qTable[state, action] + learning_rate * (target - predict);
+    }
+
+
+
 	public int GetAction(int state)
 	{
 		// Greedy Strategy
