@@ -1,4 +1,5 @@
 
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
@@ -25,12 +26,25 @@ public class Agent : MonoBehaviour
 
     public void InitQTable()
 	{
+        bool import = true;
 
-		for(int i = 0; i < 100000; i++)
+        List<float> mydata = new List<float>();
+        mydata = LoadData(@"D:\Data\import.txt");
+        int dataCount = 0;
+
+        for (int i = 0; i < 100000; i++)
 		{
-			for(int j = 0; j < 2; j++)
-			{
-				qTable[i,j] = 0;
+            for (int j = 0; j < 2; j++)
+            {
+                if (import)
+                {
+                    qTable[i, j] = dataCount >= mydata.Count ? 0 : mydata[dataCount];
+                    dataCount++;
+                }
+                else
+                {
+                    qTable[i, j] = 0;
+                }
 			}
 		}
 	}
@@ -63,6 +77,28 @@ public class Agent : MonoBehaviour
         return action;
 
 	}
+
+    public static List<float> LoadData(string path)
+    {
+        List<float> list = new List<float>();
+        if (System.IO.File.Exists(path))
+        {
+            //System.IO.StreamReader sr = new System.IO.StreamReader(path);
+            string[] array = System.IO.File.ReadAllLines(path);
+            int jump = 0;
+            for (int i = 1; i < array.Length; i++)
+            {
+                if (jump >= 2)
+                {
+                    jump = 0;
+                    continue;
+                }
+                list.Add((float)System.Convert.ToDouble(array[i]));
+                ++jump;
+            }
+        }
+        return list;
+    }
 
 
 }

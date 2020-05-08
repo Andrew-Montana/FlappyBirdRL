@@ -45,7 +45,6 @@ public class Bird : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Time.timeScale = 25f;
         myScore = 0;
         Instantiate(scrollingBgObject);
         colsStartPos = colsObj.transform.position;
@@ -70,14 +69,9 @@ public class Bird : MonoBehaviour
 
     private void FixedUpdate()
     {
-        SARSA();
-    }
-
-    private void QLearning()
-    {
         timer += Time.deltaTime;
 
-        if (timer >= delayTime)
+        if(timer >= delayTime)
         {
             timer = 0.0f;
             if (!isDead)
@@ -114,82 +108,15 @@ public class Bird : MonoBehaviour
                 // 5 Step. Update Q Table.
                 agent.UpdateQTable(state, newState, action, reward);
                 episode++;
-                Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
-                // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
+                //Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
+                Debug.Log(Agent.exploration_rate);
+               // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
                 ResetPos();
             }
             rewards_current_episode += reward;
             // agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
-            Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
-
-
-        }
-    }
-
-    private void SARSA()
-    {
-        timer += Time.deltaTime;
-
-        if (timer >= delayTime)
-        {
-            timer = 0.0f;
-            if (!isDead)
-            {
-                animator.SetInteger("State", 0);
-                // 4 step, reward
-                if (timeStep > 0)
-                {
-                    if (isTriggered == false)
-                    {
-                        reward = 1f; // was 0.1f
-                    }
-                    else
-                    {
-                        reward = 200; // was 20
-                        isTriggered = false;
-                        score.text = (++myScore).ToString();
-                    }
-                    // 5 step. Update Q Table
-                    agent.UpdateQTable(state, newState, action, reward);
-                    a1 = a2
-                }
-
-
-                // 2 step and 3 steps. perform action
-                //UserInput();
-
-
-                // action = BotInput();
-                // # action Perform ()
-                // # action = Get()
-
-                if (timeStep == 0)
-                {
-                    action = GetAction();
-                    a1 = action;
-                }
-                DoAction(a1)
-                 action = GetAction() // a2
-                 a2 = action;
-
-                state = timeStep;
-                newState = ++timeStep;
-            }
-            else
-            {
-                // 4 step. reward.
-                reward = -1000; // was -1
-                // 5 Step. Update Q Table.
-                agent.UpdateQTable(state, newState, action, reward);
-                episode++;
-                Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
-                // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
-                ResetPos();
-            }
-            rewards_current_episode += reward;
-            // agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
-            Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
-
+             Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
+        
 
         }
     }
@@ -215,7 +142,13 @@ public class Bird : MonoBehaviour
 
     public int BotInput()
     {
-        int action = agent.GetAction(timeStep);
+        Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
+        System.Random rand = new System.Random();
+        int action = 0;
+        if (rand.Next(0, 100) < Agent.exploration_rate)
+            action = rand.Next(0, 2);
+        else
+            action = agent.GetAction(timeStep);
         if (action == 1) Push();
 
         return action;
@@ -251,6 +184,7 @@ public class Bird : MonoBehaviour
             sr.WriteLine("Agent data:");
             sr.WriteLine("/t-Learning Rate = {0}", Agent.learning_rate.ToString("0.00000"));
             sr.WriteLine("/t-Discount Rate = {0}", Agent.discount_rate);
+            sr.WriteLine("/t-Exploration Rate Decay = {0}", Agent.exploration_rate);
             sr.WriteLine("/t-Exploration Rate Decay = {0}", Agent.exploration_decay_rate);
             sr.WriteLine("########");
             sr.WriteLine("Max reward ever was = {0}", tempMaxReward);
