@@ -10,6 +10,9 @@ public interface ICheck
 
 public class Bird : MonoBehaviour
 {
+    private int a1;
+    private int a2;
+
     private Rigidbody2D rb;
     private Agent agent;
     private Animator animator;
@@ -45,6 +48,8 @@ public class Bird : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        a1 = 0;
+        a2 = 0;
         Time.timeScale = 25f;
         myScore = 0;
         Instantiate(scrollingBgObject);
@@ -150,8 +155,8 @@ public class Bird : MonoBehaviour
                         score.text = (++myScore).ToString();
                     }
                     // 5 step. Update Q Table
-                    agent.UpdateQTable(state, newState, action, reward);
-                    a1 = a2
+                    agent.UpdateQTable_SARSA(state, newState, a1, a2, reward);
+                    a1 = a2;
                 }
 
 
@@ -165,12 +170,12 @@ public class Bird : MonoBehaviour
 
                 if (timeStep == 0)
                 {
-                    action = GetAction();
+                    action = GetAction(timeStep); 
                     a1 = action;
                 }
-                DoAction(a1)
-                 action = GetAction() // a2
-                 a2 = action;
+                DoAction(a1);
+                action = GetAction(timeStep+1); // a2
+                a2 = action;
 
                 state = timeStep;
                 newState = ++timeStep;
@@ -180,9 +185,9 @@ public class Bird : MonoBehaviour
                 // 4 step. reward.
                 reward = -1000; // was -1
                 // 5 Step. Update Q Table.
-                agent.UpdateQTable(state, newState, action, reward);
+                agent.UpdateQTable_SARSA(state, newState, a1, a2, reward);
                 episode++;
-                Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
+            //    Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
                 // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
                 ResetPos();
             }
@@ -219,6 +224,20 @@ public class Bird : MonoBehaviour
         if (action == 1) Push();
 
         return action;
+    }
+
+    // state
+    public int GetAction(int _timestep)
+    {
+        return agent.GetAction(_timestep);
+    }
+
+    public void DoAction(int _action)
+    {
+        if(_action == 1)
+        {
+            Push();
+        }
     }
 
     public void Push()
@@ -270,6 +289,8 @@ public class Bird : MonoBehaviour
     public void ResetPos()
     {
         SaveData();
+        a1 = 0;
+        a2 = 0;
         // Reset
         animator.SetInteger("State", 0);
         rewards_current_episode = 0;
