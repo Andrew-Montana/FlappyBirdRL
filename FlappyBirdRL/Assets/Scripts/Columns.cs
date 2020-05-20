@@ -9,9 +9,11 @@ public class Columns : MonoBehaviour
     private Bird bird;
     private float scrollSpeed = -2.5f;
     private Vector3 localPos;
+    private string name;
 
     private void Start()
     {
+        name = transform.gameObject.name.ToString();
         localPos = transform.localPosition;
         rb = GetComponent<Rigidbody2D>();
         player = GameObject.Find("Bird");
@@ -23,6 +25,9 @@ public class Columns : MonoBehaviour
     {
         if (bird.isDead)
             transform.localPosition = localPos;
+
+        if (bird.isEndState)
+            transform.localPosition = localPos;
     }
 
     private void OnTriggerEnter2D(Collider2D obj)
@@ -31,6 +36,11 @@ public class Columns : MonoBehaviour
         {
             //  GameController.instance.GetScore();
             bird.isTriggered = true;
+            if(name == "EndState")
+            {
+                Debug.Log(name);
+                bird.isEndState = true;
+            }
         }
     }
 }

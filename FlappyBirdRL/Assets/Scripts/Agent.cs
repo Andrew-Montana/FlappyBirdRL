@@ -18,8 +18,8 @@ public class Agent : MonoBehaviour
         discount_rate = 0.2f;
         exploration_rate = 100.0f;
         max_exploration_rate = 100.0f;
-        min_exploration_rate = 0.01f;
-        exploration_decay_rate = 0.01f;
+        min_exploration_rate = 5.0f;
+        exploration_decay_rate = 0.1f;
     }
 
     public float[,] qTable = new float[100000, 2];
@@ -73,16 +73,24 @@ public class Agent : MonoBehaviour
 
 	public int GetAction(int state)
 	{
-		// Greedy Strategy
-	/*	System.Random rand = new System.Random();
-        double exploration_rate_threshold = rand.NextDouble();
-		int myaction = 0;
-		if(exploration_rate_threshold > exploration_rate)
-            myaction = qTable[state,0] > qTable[state,1] ? 0 : 1;
-		else
-            myaction = rand.Next(0,2);
-        */
-       int myaction = qTable[state, 0] > qTable[state, 1] ? 0 : 1;
+        System.Random rand = new System.Random();
+        // Greedy Strategy
+        
+            double exploration_rate_threshold = rand.Next(0,101);
+        Debug.Log("threshold is " + exploration_rate_threshold.ToString() + ". Epsilon is " + exploration_rate.ToString());
+            int myaction = 0;
+            if(exploration_rate_threshold > exploration_rate)
+                myaction = qTable[state,0] > qTable[state,1] ? 0 : 1;
+            else
+                myaction = rand.Next(0,2);
+            
+            // without greedy strategy:
+        //int myaction = qTable[state, 0] > qTable[state, 1] ? 0 : 1;
+     //  if(qTable[state,0] == qTable[state,1])
+      //  {
+      //      myaction = rand.Next(0, 2);
+       //     Debug.Log("RANDOM");
+     //   }
         return myaction;
 
 	}

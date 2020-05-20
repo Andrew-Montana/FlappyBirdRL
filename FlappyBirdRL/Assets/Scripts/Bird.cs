@@ -23,6 +23,7 @@ public class Bird : MonoBehaviour
     public bool isDead;
 
     public bool isTriggered = false;
+    public bool isEndState = false;
 
     private int action, state, newState; private float reward;
     private double rewards_current_episode = 0;
@@ -44,13 +45,24 @@ public class Bird : MonoBehaviour
     // time delta delay
     private float delayTime = 0.4f;
 
+    private string collectdatapath = @"D:\Evaluation\1 QLearning_determ\alpha 0_8 discount 0_2\4 Exploration 0_1 until 5\2.txt";
+    private int testNumber = 2;
+
+    private void StartTest()
+    {
+        if(episode > 2000)
+        {
+            isEndState = true;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        StartTest();
         a1 = 0;
         a2 = 0;
-        Time.timeScale = 25f;
+        Time.timeScale = 3f;
         myScore = 0;
         Instantiate(scrollingBgObject);
         colsStartPos = colsObj.transform.position;
@@ -73,9 +85,16 @@ public class Bird : MonoBehaviour
         agent.InitQTable();
     }
 
+    private void Update()
+    {
+        Debug.Log(string.Format("episode {0} and reward {1}. Exploration now: {2}", episode, rewards_current_episode, Agent.exploration_rate));
+    }
+
     private void FixedUpdate()
     {
-        SARSA();
+        StartTest();
+        QLearning();
+        Debug.Log("reward = " + rewards_current_episode.ToString());
     }
 
     private void QLearning()
@@ -123,10 +142,19 @@ public class Bird : MonoBehaviour
                 // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
                 ResetPos();
             }
-            rewards_current_episode += reward;
+            rewards_current_episode += reward; // перенести 2 раза в выше
             // agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
             Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
+            //
 
+            // Is that end state?
+            if (isEndState == true)
+            {
+                episode++;
+                SaveData();
+                CollectData();
+                GameCompleted();
+            }
 
         }
     }
@@ -250,6 +278,7 @@ public class Bird : MonoBehaviour
     //
     public void SaveData()
     {
+        
         tempMaxState = tempMaxState > state ? tempMaxState : state; // max state ever was
         bool rewardFlag = tempMaxReward > rewards_current_episode ? true : false; // max reward
         if(rewardFlag == false)
@@ -259,6 +288,16 @@ public class Bird : MonoBehaviour
             SavePattern(@"D:\Data\bestQTable.txt");
         }
         SavePattern(@"D:\Data\qtable.txt");
+        
+    }
+
+    public void SaveCollectDataPattern(string path)
+    {
+        using (System.IO.StreamWriter sr = new System.IO.StreamWriter(path,true))
+        {
+            //  sr.WriteLine("{0};{1};",episode,rewards_current_episode);
+            sr.WriteLine("{0};{1};{2};", episode, rewards_current_episode, Agent.exploration_rate.ToString().Replace(',','.')); // for greedy str.
+        }
     }
 
     public void SavePattern(string path)
@@ -286,9 +325,39 @@ public class Bird : MonoBehaviour
         }
     }
 
+    private void GameCompleted()
+    {
+        //UnityEditor.EditorApplication.isPlaying = false;
+        ResetPos();
+        episode = 0;
+        testNumber++;
+        collectdatapath = @"D:\Evaluation\1 QLearning_determ\alpha 0_8 discount 0_2\4 Exploration 0_1 until 5\" + testNumber.ToString() + ".txt";
+        isEndState = false;
+        Agent.exploration_rate = 100;
+        agent.qTable = null;
+        agent.qTable = new float[100000, 2];
+        agent.InitQTable();
+        isTriggered = false;
+        // EndGame
+    }
+
+    // Collects data of current iteration/episode
+    private void CollectData()
+    {
+        SaveCollectDataPattern(collectdatapath);
+        // Episode number                   - 1 column
+        // Max. Cumulative Reward number    - 2 column
+
+        // # if exploration takes place
+        // Explore Decay value               - 3 column
+        // Exploration value of the episode  - 4 col
+
+    }
+
     public void ResetPos()
     {
         SaveData();
+        CollectData();
         a1 = 0;
         a2 = 0;
         // Reset
