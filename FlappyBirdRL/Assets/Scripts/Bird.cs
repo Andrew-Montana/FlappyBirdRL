@@ -45,14 +45,39 @@ public class Bird : MonoBehaviour
     // time delta delay
     private float delayTime = 0.4f;
 
-    private string collectdatapath = @"D:\Evaluation\1 QLearning_determ\alpha 0_8 discount 0_2\9 Exploration fixed 1_5\3.txt";
-    private int testNumber = 3;
+    private string collectdatapath = @"D:\Evaluation\1 QLearning_determ\find alpha and discount tests\alpha 0_8 discount UP\1.txt";
+    private int testNumber = 1;
 
     private void StartTest()
     {
-        if(episode > 2000)
+        if(episode > 1350)
         {
             isEndState = true;
+        }
+
+        if (episode > 0 && episode < 200)
+        {
+            Agent.discount_rate = 0.2f;
+        }
+        else if (episode > 201 && episode < 400)
+        {
+            Agent.discount_rate = 0.3f;
+        }
+        else if (episode > 401 && episode < 600)
+        {
+            Agent.discount_rate = 0.4f;
+        }
+        else if (episode > 601 && episode < 800)
+        {
+            Agent.discount_rate = 0.5f;
+        }
+        else if (episode > 801 && episode < 1000)
+        {
+            Agent.discount_rate = 0.6f;
+        }
+        else if (episode > 1200)
+        {
+            Agent.discount_rate = 0.7f;
         }
     }
 
@@ -331,9 +356,9 @@ public class Bird : MonoBehaviour
         ResetPos();
         episode = 0;
         testNumber++;
-        collectdatapath = @"D:\Evaluation\1 QLearning_determ\alpha 0_8 discount 0_2\9 Exploration fixed 1_5\" + testNumber.ToString() + ".txt";
+        collectdatapath = @"D:\Evaluation\1 QLearning_determ\find alpha and discount tests\alpha 0_8 discount UP\" + testNumber.ToString() + ".txt";
         isEndState = false;
-        Agent.exploration_rate = 1.5f;
+        Agent.exploration_rate = -1.5f;
         agent.qTable = null;
         agent.qTable = new float[100000, 2];
         agent.InitQTable();
