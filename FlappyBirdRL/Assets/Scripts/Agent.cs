@@ -15,8 +15,8 @@ public class Agent : MonoBehaviour
     static Agent()
     {
         learning_rate = 0.8f;
-        discount_rate = 0.1f;
-        exploration_rate = -1.5f;
+        discount_rate = 0.2f;
+        exploration_rate = -2.5f;
         max_exploration_rate = 100.0f;
         min_exploration_rate = 1.5f;
         exploration_decay_rate = 0.1f;

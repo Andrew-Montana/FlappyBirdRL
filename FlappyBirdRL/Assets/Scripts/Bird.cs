@@ -45,16 +45,49 @@ public class Bird : MonoBehaviour
     // time delta delay
     private float delayTime = 0.4f;
 
-    private string collectdatapath = @"D:\Evaluation\1 QLearning_determ\find alpha and discount tests\alpha 0_8 discount UP\1.txt";
+    private string collectdatapath = @"D:\Evaluation\2 SARSA\7 no exp 30 tests 100 episodes\1.txt";
     private int testNumber = 1;
 
     private void StartTest()
     {
-        if(episode > 1350)
+        if(episode > 100) //1350
         {
             isEndState = true;
         }
+        //discount_down();
 
+    }
+
+    private void discount_down()
+    {
+        if (episode > 0 && episode < 200)
+        {
+            Agent.discount_rate = 0.8f;
+        }
+        else if (episode > 201 && episode < 400)
+        {
+            Agent.discount_rate = 0.7f;
+        }
+        else if (episode > 401 && episode < 600)
+        {
+            Agent.discount_rate = 0.6f;
+        }
+        else if (episode > 601 && episode < 800)
+        {
+            Agent.discount_rate = 0.5f;
+        }
+        else if (episode > 801 && episode < 1000)
+        {
+            Agent.discount_rate = 0.4f;
+        }
+        else if (episode > 1200)
+        {
+            Agent.discount_rate = 0.3f;
+        }
+    }
+
+    private void discount_up()
+    {
         if (episode > 0 && episode < 200)
         {
             Agent.discount_rate = 0.2f;
@@ -118,7 +151,8 @@ public class Bird : MonoBehaviour
     private void FixedUpdate()
     {
         StartTest();
-        QLearning();
+        //QLearning();
+        SARSA();
         Debug.Log("reward = " + rewards_current_episode.ToString());
     }
 
@@ -168,7 +202,7 @@ public class Bird : MonoBehaviour
                 ResetPos();
             }
             rewards_current_episode += reward; // перенести 2 раза в выше
-            // agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
+            //agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
             Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
             //
 
@@ -240,14 +274,21 @@ public class Bird : MonoBehaviour
                 // 5 Step. Update Q Table.
                 agent.UpdateQTable_SARSA(state, newState, a1, a2, reward);
                 episode++;
-            //    Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
+               ///// Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
+                //    Agent.exploration_rate = Mathf.Clamp(Agent.exploration_rate - Agent.exploration_decay_rate, Agent.min_exploration_rate, Agent.max_exploration_rate);
                 // agent.exploration_rate = agent.min_exploration_rate + (agent.max_exploration_rate - agent.min_exploration_rate) * Mathf.Exp((float)-agent.exploration_decay_rate * episode);
                 ResetPos();
             }
             rewards_current_episode += reward;
             // agent.exploration_rate = Mathf.Clamp(agent.exploration_rate - agent.exploration_decay_rate, agent.min_exploration_rate, agent.max_exploration_rate);
             Debug.Log(string.Format("episode {0}. E = {1}", episode, Agent.exploration_rate));
-
+            if (isEndState == true)
+            {
+                episode++;
+                SaveData();
+                CollectData();
+                GameCompleted();
+            }
 
         }
     }
@@ -321,7 +362,7 @@ public class Bird : MonoBehaviour
         using (System.IO.StreamWriter sr = new System.IO.StreamWriter(path,true))
         {
             //  sr.WriteLine("{0};{1};",episode,rewards_current_episode);
-            sr.WriteLine("{0};{1};{2};", episode, rewards_current_episode, Agent.exploration_rate.ToString().Replace(',','.')); // for greedy str.
+            sr.WriteLine("{0};{1};{2};{3};", episode, rewards_current_episode, Agent.exploration_rate.ToString().Replace(',','.'), Agent.discount_rate.ToString().Replace(',', '.')); // for greedy str.
         }
     }
 
@@ -356,9 +397,9 @@ public class Bird : MonoBehaviour
         ResetPos();
         episode = 0;
         testNumber++;
-        collectdatapath = @"D:\Evaluation\1 QLearning_determ\find alpha and discount tests\alpha 0_8 discount UP\" + testNumber.ToString() + ".txt";
+        collectdatapath = @"D:\Evaluation\2 SARSA\7 no exp 30 tests 100 episodes\" + testNumber.ToString() + ".txt";
         isEndState = false;
-        Agent.exploration_rate = -1.5f;
+        Agent.exploration_rate = -2.5f;
         agent.qTable = null;
         agent.qTable = new float[100000, 2];
         agent.InitQTable();
